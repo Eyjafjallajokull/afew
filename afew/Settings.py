@@ -19,7 +19,7 @@ settings = ConfigParser()
 settings.optionxform = str
 
 settings.readfp(open(os.path.join(os.path.dirname(__file__), 'defaults', 'afew.config')))
-settings.read(os.path.join(user_config_dir, 'config'))
+settings.read(os.environ.get('AFEW_CONFIG', os.path.join(user_config_dir, 'config')))
 
 # All the values for keys listed here are interpreted as ;-delimited lists
 value_is_a_list = ['tags', 'tags_blacklist']
