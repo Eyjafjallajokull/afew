@@ -19,7 +19,7 @@ class MailMover(Database):
     Move mail files matching a given notmuch query into a target maildir folder.
     """
 
-    def __init__(self, max_age=0, rename=False, dry_run=False, notmuch_args='', quiet=False):
+    def __init__(self, max_age=0, rename=False, dry_run=False, notmuch_config='', notmuch_args='', quiet=False):
         super().__init__()
         self.db = notmuch.Database(self.db_path)
         self.query = 'folder:"{folder}" AND {subquery}'
@@ -31,6 +31,7 @@ class MailMover(Database):
                                                        now=now.strftime('%s'))
         self.dry_run = dry_run
         self.rename = rename
+        self.notmuch_config = notmuch_config
         self.notmuch_args = notmuch_args
         self.quiet = quiet
 
@@ -106,11 +107,13 @@ class MailMover(Database):
         """
         Update the database after mail files have been moved in the filesystem.
         """
+        config_arg = ['--config', self.notmuch_config] if self.notmuch_config else []
+        command = ['notmuch', *config_arg, 'new'] + self.notmuch_args.split()
         try:
             if self.quiet:
-                check_call(['notmuch', 'new'] + self.notmuch_args.split(), stdout=DEVNULL, stderr=DEVNULL)
+                check_call(command, stdout=DEVNULL, stderr=DEVNULL)
             else:
-                check_call(['notmuch', 'new'] + self.notmuch_args.split())
+                check_call(command)
         except CalledProcessError as err:
             logging.error("Could not update notmuch database "
                           "after syncing maildir '{}': {}".format(maildir, err))
