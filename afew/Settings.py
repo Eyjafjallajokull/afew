@@ -67,8 +67,8 @@ def get_filter_chain(database):
 
 def get_mail_move_rules():
     rule_pattern = re.compile(r"'(.+?)':((?P<quote>['\"])(.*?)(?P=quote)|\S+)")
+    all_rules = collections.OrderedDict()
     if settings.has_option(mail_mover_section, 'folders'):
-        all_rules = collections.OrderedDict()
 
         for folder in shlex.split(settings.get(mail_mover_section, 'folders')):
             if settings.has_option(mail_mover_section, folder):
@@ -82,10 +82,9 @@ def get_mail_move_rules():
                 all_rules[folder] = rules
             else:
                 raise NameError("No rules specified for maildir '{}'.".format(folder))
-
-        return all_rules
     else:
-        raise NameError("No folders defined to move mails from.")
+        print("No folders defined to move mails from.")
+    return all_rules
 
 
 def get_mail_move_age():
